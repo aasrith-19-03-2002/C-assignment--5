@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+struct treeNode {
+        int info;
+        struct treeNode *left, *right;
+  };
+struct treeNode *root = NULL;
+struct treeNode* createNode(int info) 
+{
+        struct treeNode *newNode;
+        newNode = (struct treeNode *) malloc(sizeof (struct treeNode));
+        newNode->info = info;
+        newNode->left = NULL;
+        newNode->right = NULL;
+        return(newNode);
+}
+void insertion(struct treeNode **node, int info) {
+        if (*node == NULL) 
+        {
+           *node = createNode(info);
+        } else if (info < (*node)->info) 
+        {
+                insertion(&(*node)->left, info);
+        } else if (info > (*node)->info) 
+        {
+                insertion(&(*node)->right, info);
+        }
+  }
+void deletion(struct treeNode **node, struct treeNode **parent, int info) 
+{
+       struct treeNode *tempNode, *tempParent;
+        if (*node == NULL)
+                return;
+        if ((*node)->info == info) 
+        {
+            if (!(*node)->left && !(*node)->right) 
+            {
+                        if (parent) 
+                        {
+                                
+                                if ((*parent)->left == *node)
+                                        (*parent)->left = NULL;
+                                else
+                                        (*parent)->right = NULL;
+                                free(*node);
+                        } else 
+                        {
+                               
+                            free(*node);
+                        }
+                
+            } else if (!(*node)->right && (*node)->left) {
+                        tempNode = *node;
+                        (*parent)->right = (*node)->left;
+                        free(tempNode);
+                        *node = (*parent)->right;
+                } else if ((*node)->right && !(*node)->left) {
+                        tempNode = *node;
+                        (*parent)->left = (*node)->right;
+                        free(tempNode);
+                        (*node) = (*parent)->left;
+                } else if (!(*node)->right->left) {
+                        tempNode = *node;
+                        (*node)->right->left = (*node)->left;
+                        (*parent)->left = (*node)->right;
+                        free(tempNode);
+                        *node = (*parent)->left;
+                } else {
+                        tempNode = (*node)->right;
+                        while (tempNode->left) {
+                                tempParent = tempNode;
+                                tempNode = tempNode->left;
+                        }
+                        tempParent->left = tempNode->right;
+                        tempNode->left = (*node)->left;
+                        tempNode->right =(*node)->right;
+                        free(*node);
+                        *node = tempNode;
+                }
+        } else if (info < (*node)->info) {
+                deletion(&(*node)->left, node, info);
+        } else if (info > (*node)->info) {
+               deletion(&(*node)->right, node, info);
+        }
+}
+void traverse(struct treeNode *node) {
+        if (node != NULL) {
+                traverse(node->left);
+                printf("%3d", node->info);
+                traverse(node->right);
+        }
+        return;
+  }
+
+  int main() {
+        int info, ch;
+        while (1) {
+                printf("1. Insertion in Binary Search Tree\n");
+                printf("2. Deletion in Binary Search Tree\n");
+                printf("3. Inorder traversal\n4. Exit\n");
+                printf("Enter your choice:");
+                scanf("%d", &ch);
+                switch (ch) {
+                        case 1:
+                                while (1) {
+                                printf("Enter your info:");
+                                scanf("%d", &info);
+                                insertion(&root, info);
+                                printf("Continue Insertion(0/1):");
+                                scanf("%d", &ch);
+                                if (!ch)
+                                        break;
+                                }
+                                break;
+                        case 2:
+                                printf("Enter your data:");
+                                scanf("%d", &info);
+                                deletion(&root, NULL, info);
+                                break;
+                        case 3:
+                                printf("inorder traversal:\n");
+                                traverse(root);
+                                printf("\n");
+                                break;
+                        case 4:
+                                exit(0);
+                        default:
+                                printf("entered wrong option\n");
+                                break;
+                }
+        }
+        return 0;
+
+  }
